@@ -208,6 +208,6 @@ if __name__ == '__main__':
     hb.font_file = sys.argv[1]
     print(hb.toJson(text='Hello'))
     hb.margin=0
-    print(hb.toSVG(text='Hello', font_size=23, output_file='test.svg'))
+    print(hb.toSVG(text='Hello', font_size=23))
     print(hb.toPNG(text='Hello', font_size=23, output_file='test.png'))
     print(hb.toPDF(text='Hello', font_size=23, output_file='test.pdf'))
