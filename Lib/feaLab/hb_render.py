@@ -66,7 +66,9 @@ except ImportError:
 class HarfBuzzRenderer(object): 
     def __init__(self, font_file = None, face_index = 0, text = u''): 
         self.shaper = 'ot'
+        self.all_shapers = [self.shaper]
         self.shaper_os = self.shaper
+
         self.shapers = [self.shaper]             # Set comma_separated list of shapers to try
 
         self.font_file = font_file               # Set font file_name
@@ -143,6 +145,7 @@ class HarfBuzzRenderer(object):
             normalize_glyphs=self.normalize_glyphs,
             num_iterations=self.num_iterations,
             no_glyph_names=self.use_glyph_indexes,
+            shapers=",".join(self.shapers),
         )
         return json.loads(
             unicode(hb_out)
@@ -181,6 +184,7 @@ class HarfBuzzRenderer(object):
                 normalize_glyphs=self.normalize_glyphs,
                 num_iterations=self.num_iterations,
                 no_glyph_names=self.use_glyph_indexes,
+                shapers=",".join(self.shapers),
                 annotate=self.annotate,
                 background=self.background,
                 foreground=self.foreground,
@@ -205,7 +209,7 @@ if __name__ == '__main__':
     hb = HarfBuzzRenderer()
     hb.updateShapers()
     print(hb.all_shapers)
-    hb.font_file = sys.argv[1]
+    hb.font_file = 'test/MinionPro-Regular.otf'
     print(hb.toJson(text='Hello'))
     hb.margin=0
     print(hb.toSVG(text='Hello', font_size=23))
