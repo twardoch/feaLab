@@ -32,7 +32,7 @@ setup(
         'pytest>=2.8',
     ],
     install_requires=[
-    ],
+        'sh', 'sh',],
     classifiers=[
         'Development Status :: 4 - Beta',
         "Environment :: Console",
