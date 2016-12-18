@@ -31,7 +31,7 @@ try:
 except ImportError:
     HB_VIEW = False
 
-__version__ = "0.2"
+__version__ = "0.3"
 
 class HarfBuzzRenderer(object):
     """Class to call the HarfBuzz `hb-view` or `hb-shape` tools via the `sh` module.
@@ -268,6 +268,7 @@ class HarfBuzzRenderer(object):
             text (unicode, optional): optional text, otherwise uses self.text
 
         Returns:
+            None: if an error occurred
             list[dict, ...]: parsed JSON structure in `hb-shape` output format
 
         Example input:
@@ -287,6 +288,7 @@ class HarfBuzzRenderer(object):
         hb_in = text.encode('utf-8')
         hb_out = self._hb_shape(
             _in=hb_in,
+            _encoding="UTF-8",
             output_format='json',
             font_file=unicode(self.font_file).encode('utf-8'),
             face_index=self.face_index,
@@ -310,11 +312,14 @@ class HarfBuzzRenderer(object):
             no_glyph_names=self.use_glyph_indexes,
             shapers=",".join(self.use_shapers),
         )
+        if hb_out.stderr:
+            warnings.warn("`hb-view` returned an error: %s" % (hb_out.stderr))
+            return None
         return json.loads(
-            unicode(hb_out)
+            unicode(hb_out.stdout)
         )
 
-    def toImage(self, text=None, output_format='svg', font_size=None, output_file=False):
+    def _toImage(self, text=None, output_format='svg', font_size=None, output_file=False):
         """Method to call hb_view with the desired ouput format and get back:
 
         Args:
@@ -324,13 +329,12 @@ class HarfBuzzRenderer(object):
             output_file (unicode): path to output_file, or False if stdout should be used
 
         Returns:
-            None or str or sh.RunningCommand:
-             * None if `hb-view` is not accessible
-             * str: the output file path if output_file was provided and the file was created
-             * sh.RunningCommand: may be SVG, PNG or PDF buffer
-             * sh.RunningCommand: if the output_file was not created
+             None: if `hb-view` is not accessible or if an error occurs
+             str: SVG (UTF-8), PNG or PDF buffer
+             str: the output file path (UTF-8) if output_file was provided and the file was created
         """
         if not HB_VIEW:
+            warnings.warn("`hb-view` not available")
             return None
         else:
             if font_size == 0:
@@ -346,6 +350,7 @@ class HarfBuzzRenderer(object):
             hb_in = unicode(text).encode('utf-8')
             hb_out = self._hb_view(
                 _in=hb_in,
+                _encoding="UTF-8",
                 output_format=output_format,
                 output_file=unicode(output_file).encode('utf-8') if output_file else False,
                 font_file=unicode(self.font_file).encode('utf-8'),
@@ -375,14 +380,18 @@ class HarfBuzzRenderer(object):
                 line_space=self.line_space,
                 margin=self.margin if type(self.margin) == int else " ".join(str(i) for i in self.margin),
             )
+            if hb_out.stderr:
+                warnings.warn("`hb-view` returned an error: %s" % (hb_out.stderr))
+                return None
             if output_file:
                 output_path = os.path.realpath(output_file)
                 if os.path.exists(output_path):
-                    return unicode(output_path)
+                    return output_path
                 else:
-                    return hb_out
+                    warnings.warn("`hb-view` did not create file: %s" % (output_path))
+                    return None
             else:
-                return hb_out
+                return hb_out.stdout
 
     def toSVG(self, text=None, font_size=None, output_file=''):
         """
@@ -393,15 +402,16 @@ class HarfBuzzRenderer(object):
             output_file (str):
 
         Returns:
-            unicode:
-             * if output_file was provided and the file was created: the full output file path
-             * else: the actual SVG code
+            str:
+                * empty string if an error occurred
+                * SVG (UTF-8) content
+                * the output file path (UTF-8) if output_file was provided and the file was created
         """
-        svg = self.toImage(text=text, font_size=font_size, output_file=output_file, output_format='svg')
-        if output_file:
-            return svg
+        data = self._toImage(text=text, font_size=font_size, output_file=output_file, output_format='svg')
+        if data:
+            return data
         else:
-            return unicode(svg)  # TODO: better processing of the output SVG?
+            return ''
 
     def toPNG(self, text=None, font_size=None, output_file=''):
         """
@@ -412,17 +422,16 @@ class HarfBuzzRenderer(object):
             output_file (str):
 
         Returns:
-            None or str or sh.RunningCommand:
-             * None if `hb-view` is not accessible
-             * str: the output file path if output_file was provided and the file was created
-             * sh.RunningCommand: PNG buffer
-             * sh.RunningCommand: if the output_file was not created
+            str:
+                * empty string if an error occurred
+                * PNG buffer
+                * the output file path (UTF-8) if output_file was provided and the file was created
         """
-        png = self.toImage(text=text, font_size=font_size, output_file=output_file, output_format='png')
-        if output_file:
-            return png
+        data = self._toImage(text=text, font_size=font_size, output_file=output_file, output_format='png')
+        if data:
+            return data
         else:
-            return png  # TODO: better processing of the output PNG?
+            return ''
 
     def toPDF(self, text=None, font_size=None, output_file=''):
         """
@@ -433,18 +442,16 @@ class HarfBuzzRenderer(object):
             output_file (str):
 
         Returns:
-            None or str or sh.RunningCommand:
-             * None if `hb-view` is not accessible
-             * str: the output file path if output_file was provided and the file was created
-             * sh.RunningCommand: PDF buffer
-             * sh.RunningCommand: if the output_file was not created
+            str:
+                * empty string if an error occurred
+                * PDF buffer
+                * the output file path (UTF-8) if output_file was provided and the file was created
         """
-        pdf = self.toImage(text=text, font_size=font_size, output_file=output_file, output_format='pdf')
-        if output_file:
-            return pdf
+        data = self._toImage(text=text, font_size=font_size, output_file=output_file, output_format='pdf')
+        if data:
+            return data
         else:
-            return svg  # TODO: better processing of the output PDF?
-
+            return ''
 
 def test():
     hb = HarfBuzzRenderer()
@@ -466,6 +473,6 @@ if __name__ == '__main__':
     print('hb_render.py font_file [text] [font_size]')
     hb = HarfBuzzRenderer()
     hb.openFont(sys.argv[1] if len(sys.argv)>1 else u'test/EBGarąmońd12-Regular.otf')
-    hb.text = unicode(sys.argv[2] if len(sys.argv) > 2 else u'książę')
-    hb.font_size = int(sys.argv[3] if len(sys.argv) > 3 else '256')
-    print(hb.toImage(output_format='ansi'))
+    hb.text = unicode(sys.argv[2] if len(sys.argv) > 2 else u'O')
+    hb.font_size = int(sys.argv[3] if len(sys.argv) > 3 else '20')
+    print(hb.toSVG())
