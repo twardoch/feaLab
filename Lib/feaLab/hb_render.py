@@ -95,17 +95,17 @@ class HarfBuzzRenderer(object):
                 Syntax:       Value:    Start:    End:
 
             Setting value:
-                "kern"        1         0         ∞         # Turn feature on
-                "+kern"       1         0         ∞         # Turn feature on
-                "-kern"       0         0         ∞         # Turn feature off
-                "kern=0"      0         0         ∞         # Turn feature off
-                "kern=1"      1         0         ∞         # Turn feature on
-                "aalt=2"      2         0         ∞         # Choose 2nd alternate
+                "kern"        1         0         $         # Turn feature on
+                "+kern"       1         0         $         # Turn feature on
+                "-kern"       0         0         $         # Turn feature off
+                "kern=0"      0         0         $         # Turn feature off
+                "kern=1"      1         0         $         # Turn feature on
+                "aalt=2"      2         0         $         # Choose 2nd alternate
 
             Setting index:
-                "kern[]"      1         0         ∞         # Turn feature on
-                "kern[:]"     1         0         ∞         # Turn feature on
-                "kern[5:]"    1         5         ∞         # Turn feature on, partial
+                "kern[]"      1         0         $         # Turn feature on
+                "kern[:]"     1         0         $         # Turn feature on
+                "kern[5:]"    1         5         $         # Turn feature on, partial
                 "kern[:5]"    1         0         5         # Turn feature on, partial
                 "kern[3:5]"   1         3         5         # Turn feature on, range
                 "kern[3]"     1         3         3+1       # Turn feature on, single char
@@ -290,7 +290,7 @@ class HarfBuzzRenderer(object):
             _in=hb_in,
             _encoding="UTF-8",
             output_format='json',
-            font_file=unicode(self.font_file).encode('utf-8'),
+            font_file=self.font_file,
             face_index=self.face_index,
             font_size='upem' if self.font_size == 0 else self.font_size,
             show_text=False,
@@ -352,8 +352,8 @@ class HarfBuzzRenderer(object):
                 _in=hb_in,
                 _encoding="UTF-8",
                 output_format=output_format,
-                output_file=unicode(output_file).encode('utf-8') if output_file else False,
-                font_file=unicode(self.font_file).encode('utf-8'),
+                output_file=output_file if output_file else False,
+                font_file=self.font_file,
                 face_index=self.face_index,
                 font_size=font_size,
                 show_text=False,
@@ -469,10 +469,16 @@ def test():
     print(hb.toPDF(text=text, font_size=size, output_file='test/EBGaramond12-Regular.pdf'))
     help(hb)
 
+
+def main():
+    if len(sys.argv) > 1:
+        hb = HarfBuzzRenderer()
+        hb.openFont(sys.argv[1])
+        hb.text = unicode(sys.argv[2] if len(sys.argv) > 2 else u'O')
+        hb.font_size = int(sys.argv[3] if len(sys.argv) > 3 else '20')
+        print(hb.toSVG())
+    else:
+        print('hb_render font_file [text] [font_size]')
+
 if __name__ == '__main__':
-    print('hb_render.py font_file [text] [font_size]')
-    hb = HarfBuzzRenderer()
-    hb.openFont(sys.argv[1] if len(sys.argv)>1 else u'test/EBGarąmońd12-Regular.otf')
-    hb.text = unicode(sys.argv[2] if len(sys.argv) > 2 else u'O')
-    hb.font_size = int(sys.argv[3] if len(sys.argv) > 3 else '20')
-    print(hb.toSVG())
+    main()
