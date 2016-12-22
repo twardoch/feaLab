@@ -1,20 +1,24 @@
-from __future__ import print_function, division, absolute_import
-from setuptools import setup, find_packages
+from __future__ import absolute_import, division, print_function
+
 import sys
 from codecs import open
 from os import path
-try: 
+
+from setuptools import find_packages, setup
+
+try:
     from sh import pandoc
+
     isPandoc = True
-except ImportError: 
+except ImportError:
     isPandoc = False
 
 # Get the long description from the README file
 readmepath = path.join(path.realpath(path.dirname(__file__)), 'README.md')
-if path.exists(readmepath): 
-    if isPandoc: 
+if path.exists(readmepath):
+    if isPandoc:
         long_description = pandoc(readmepath, read='markdown', write='rst')
-    else: 
+    else:
         long_description = open(readmepath, encoding='utf-8').read()
 
 needs_pytest = {'pytest', 'test'}.intersection(sys.argv)
@@ -48,7 +52,7 @@ setup(
     classifiers=[
         'Environment :: MacOS X',
         "Environment :: Console",
-        'Operating System :: MacOS :: MacOS X', 
+        'Operating System :: MacOS :: MacOS X',
         # How mature is this project? Common values are
         #   3 - Alpha
         #   4 - Beta
@@ -71,7 +75,7 @@ setup(
     ],
 
     # What does your project relate to?
-    keywords=['opentype', 'font', 'harfbuzz', 'afdko', 'svg', 'fea'], 
+    keywords=['opentype', 'font', 'harfbuzz', 'afdko', 'svg', 'fea'],
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
@@ -89,7 +93,7 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=['sh>=1.11',
-        ],
+                      ],
 
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow

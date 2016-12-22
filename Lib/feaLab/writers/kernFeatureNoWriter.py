@@ -4,5 +4,6 @@ class KernFeatureWriter(object):
 
     def __init__(self, font):
         pass
+
     def write(self, linesep="\n"):
         return ""

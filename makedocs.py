@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import warnings
 import os
+import warnings
 
 try:
     from sh import pdoc

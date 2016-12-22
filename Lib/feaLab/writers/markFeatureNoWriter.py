@@ -4,5 +4,6 @@ class MarkFeatureWriter(object):
 
     def __init__(self, font, anchorList=(), mkmkAnchorList=(), ligaAnchorList=()):
         pass
+
     def write(self, doMark=False, doMkmk=False):
         return ""

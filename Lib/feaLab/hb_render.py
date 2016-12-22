@@ -13,8 +13,8 @@ using the Python 'sh' module
 """
 
 import json
-import sys
 import os.path
+import sys
 import warnings
 
 try:
@@ -32,6 +32,7 @@ except ImportError:
     HB_VIEW = False
 
 __version__ = "0.3"
+
 
 class HarfBuzzRenderer(object):
     """Class to call the HarfBuzz `hb-view` or `hb-shape` tools via the `sh` module.
@@ -155,6 +156,7 @@ class HarfBuzzRenderer(object):
             default: 16
 
     """
+
     def __init__(self, font_file=None, face_index=0, text=u''):
         """Initialize the HarfBuzzRenderer() object
 
@@ -287,30 +289,30 @@ class HarfBuzzRenderer(object):
         self.text = text
         hb_in = text.encode('utf-8')
         hb_out = self._hb_shape(
-            _in=hb_in,
             _encoding="UTF-8",
-            output_format='json',
-            font_file=self.font_file,
-            face_index=self.face_index,
-            font_size='upem' if self.font_size == 0 else self.font_size,
-            show_text=False,
-            show_unicode=False,
-            show_extents=False,
-            language=self.language,
-            direction=self.direction,
-            script=self.script,
-            features=",".join(self.features),
+            _in=hb_in,
             bot=self.bot,
-            eot=self.eot,
-            text_before=self.text_before,
-            text_after=self.text_after,
-            preserve_default_ignorables=self.preserve_default_ignorables,
-            utf8_clusters=self.utf8_clusters,
             cluster_level=self.cluster_level,
+            direction=self.direction,
+            eot=self.eot,
+            face_index=self.face_index,
+            features=",".join(self.features),
+            font_file=self.font_file,
+            font_size='upem' if self.font_size == 0 else self.font_size,
+            language=self.language,
+            no_glyph_names=self.use_glyph_indexes,
             normalize_glyphs=self.normalize_glyphs,
             num_iterations=self.num_iterations,
-            no_glyph_names=self.use_glyph_indexes,
+            output_format='json',
+            preserve_default_ignorables=self.preserve_default_ignorables,
+            script=self.script,
             shapers=",".join(self.use_shapers),
+            show_extents=False,
+            show_text=False,
+            show_unicode=False,
+            text_after=self.text_after,
+            text_before=self.text_before,
+            utf8_clusters=self.utf8_clusters,
         )
         if hb_out.stderr:
             warnings.warn("`hb-view` returned an error: %s" % (hb_out.stderr))
@@ -349,36 +351,36 @@ class HarfBuzzRenderer(object):
             self.text = text
             hb_in = unicode(text).encode('utf-8')
             hb_out = self._hb_view(
-                _in=hb_in,
                 _encoding="UTF-8",
-                output_format=output_format,
-                output_file=output_file if output_file else False,
-                font_file=self.font_file,
-                face_index=self.face_index,
-                font_size=font_size,
-                show_text=False,
-                show_unicode=False,
-                show_extents=False,
-                language=self.language,
-                direction=self.direction,
-                script=self.script,
-                features=",".join(self.features),
-                bot=self.bot,
-                eot=self.eot,
-                text_before=self.text_before,
-                text_after=self.text_after,
-                preserve_default_ignorables=self.preserve_default_ignorables,
-                utf8_clusters=self.utf8_clusters,
-                cluster_level=self.cluster_level,
-                normalize_glyphs=self.normalize_glyphs,
-                num_iterations=self.num_iterations,
-                no_glyph_names=self.use_glyph_indexes,
-                shapers=",".join(self.use_shapers),
+                _in=hb_in,
                 annotate=self.annotate,
                 background=self.background,
+                bot=self.bot,
+                cluster_level=self.cluster_level,
+                direction=self.direction,
+                eot=self.eot,
+                face_index=self.face_index,
+                features=",".join(self.features),
+                font_file=self.font_file,
+                font_size=font_size,
                 foreground=self.foreground,
+                language=self.language,
                 line_space=self.line_space,
                 margin=self.margin if type(self.margin) == int else " ".join(str(i) for i in self.margin),
+                no_glyph_names=self.use_glyph_indexes,
+                normalize_glyphs=self.normalize_glyphs,
+                num_iterations=self.num_iterations,
+                output_file=output_file if output_file else False,
+                output_format=output_format,
+                preserve_default_ignorables=self.preserve_default_ignorables,
+                script=self.script,
+                shapers=",".join(self.use_shapers),
+                show_extents=False,
+                show_text=False,
+                show_unicode=False,
+                text_after=self.text_after,
+                text_before=self.text_before,
+                utf8_clusters=self.utf8_clusters,
             )
             if hb_out.stderr:
                 warnings.warn("`hb-view` returned an error: %s" % (hb_out.stderr))
@@ -453,6 +455,7 @@ class HarfBuzzRenderer(object):
         else:
             return ''
 
+
 def test():
     hb = HarfBuzzRenderer()
     hb.updateShapers()
@@ -479,6 +482,7 @@ def main():
         print(hb.toSVG())
     else:
         print('hb_render font_file [text] [font_size]')
+
 
 if __name__ == '__main__':
     main()
