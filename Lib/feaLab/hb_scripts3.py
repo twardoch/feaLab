@@ -47,7 +47,7 @@ def isoScript(s):
 
 def otScripts(s):
     s = isoScript(s)
-    if s[:1] == 'Z':
+    if s in ('Zinh', 'Zyyy', 'Zzzz'):
         return ['DFLT']
     else:
         tag = _getTag(s)
@@ -116,7 +116,7 @@ if __name__ == '__main__':
     #print(otScript('deva'))
     #print(charScript('আ'))
     #print(ud.script('আ'))
-    #print(getIsoToOtScriptMap())
+    print(getIsoToOtScriptMap())
 
     fea = """
 languagesystem DFLT dflt;
