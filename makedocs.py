@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import os
 import warnings
 
@@ -11,11 +10,11 @@ except ImportError:
     warnings.warn("Run: pip install --user pdoc")
     isPdoc = False
 
-pydocs = os.path.join(os.path.realpath(os.path.dirname(__file__)), 'pydocs')
+pydocs = os.path.join(os.path.realpath(os.path.dirname(__file__)), "pydocs")
 if not os.path.isdir(pydocs):
     os.makedirs(pydocs)
 pdoc(
-    'feaLab',
+    "feaLab",
     _cwd=pydocs,
     html=False,
     all_submodules=True,
@@ -23,11 +22,11 @@ pdoc(
     overwrite=True,
 )
 
-pydocs = os.path.join(os.path.realpath(os.path.dirname(__file__)), 'docs', 'pydocs')
+pydocs = os.path.join(os.path.realpath(os.path.dirname(__file__)), "docs", "pydocs")
 if not os.path.isdir(pydocs):
     os.makedirs(pydocs)
 pdoc(
-    'feaLab',
+    "feaLab",
     _cwd=pydocs,
     html=True,
     all_submodules=True,
@@ -44,6 +43,8 @@ except ImportError:
     isPandoc = False
 
 if isPandoc:
-    readmepath = os.path.join(os.path.realpath(os.path.dirname(__file__)), 'README.md')
+    readmepath = os.path.join(os.path.realpath(os.path.dirname(__file__)), "README.md")
     if os.path.exists(readmepath):
-        long_description = pandoc(readmepath, read='markdown', write='html', output='docs/index.html')
+        long_description = pandoc(
+            readmepath, read="markdown", write="html", output="docs/index.html"
+        )

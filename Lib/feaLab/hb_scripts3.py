@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Mini-module to convert between Unicode and OpenType
 script tags.
@@ -20,58 +19,64 @@ https://www.freedesktop.org/software/harfbuzz/release/
 https://github.com/harfbuzz/harfbuzz/blob/master/src/hb-ot-tag.cc
 """
 
-from __future__ import unicode_literals, print_function
-
-__version__ = '0.0.1'
+__version__ = "0.0.1"
 
 import re
 
-import fontTools.ttLib
 import fontTools.unicodedata as ud
+import harfbuzz as hb
 from fontTools.misc.py23 import *
 
-import harfbuzz as hb
 hbu = hb.UnicodeFuncs.get_default()
+
 
 def _getTag(s):
     s = s.ljust(4)[:4].encode()
     return hb.HB.TAG(s)
 
+
 def isoScript(s):
     tag = _getTag(s)
     rtag = hb.script_to_iso15924_tag(hb.hb.hb_ot_tag_to_script(tag))
     if rtag == 0:
-        return 'Zyyy'
+        return "Zyyy"
     else:
         return hb.tag_to_string(rtag)
 
+
 def otScripts(s):
     s = isoScript(s)
-    if s in ('Zinh', 'Zyyy', 'Zzzz'):
-        return ['DFLT']
+    if s in ("Zinh", "Zyyy", "Zzzz"):
+        return ["DFLT"]
     else:
         tag = _getTag(s)
         scripts = [hb.tag_to_string(tag) for tag in hb.ot_tags_from_script(tag)]
-        if scripts[1] == 'DFLT':
+        if scripts[1] == "DFLT":
             return scripts[:1]
         else:
             return scripts
 
+
 def otScript(s):
     return otScripts(s)[0]
+
 
 def charScript(char):
     code = byteord(char)
     return hb.tag_to_string(hbu.script(code))
 
+
 def getIsoToOtScriptMap():
-    OTSCRIPTS = {isoScript: otScripts(isoScript) for isoScript in ud.Scripts.NAMES.keys()}
+    OTSCRIPTS = {
+        isoScript: otScripts(isoScript) for isoScript in ud.Scripts.NAMES.keys()
+    }
     return OTSCRIPTS
 
-def updateLanguageSystemsInFea(feaText='', ftFont=None, unicodes=[]):
+
+def updateLanguageSystemsInFea(feaText="", ftFont=None, unicodes=[]):
     if ftFont:
         unicodes = []
-        tCmap = ftFont['cmap']
+        tCmap = ftFont["cmap"]
         cmap = tCmap.getcmap(3, 10)
         if not cmap:
             cmap = tCmap.getcmap(3, 1)
@@ -87,35 +92,36 @@ def updateLanguageSystemsInFea(feaText='', ftFont=None, unicodes=[]):
     for line in feaText.splitlines():
         langsys = None
         for script, lang in re.findall(
-                r'^.*?languagesystem\s+([A-Za-z]{4})\s+([A-Z]+|dflt)\s*;',
-                line):
+            r"^.*?languagesystem\s+([A-Za-z]{4})\s+([A-Z]+|dflt)\s*;", line
+        ):
             langsys = (script, lang)
         if langsys:
             langsyses.append(langsys)
         else:
             feaLines.append(line)
     for u in unicodes:
-        langsys = (otScript(charScript(u)), 'dflt')
+        langsys = (otScript(charScript(u)), "dflt")
         langsyses.append(langsys)
-    langsysesFirst = [('DFLT', 'dflt'), ('latn', 'dflt')]
+    langsysesFirst = [("DFLT", "dflt"), ("latn", "dflt")]
     langsyses = set(langsyses) - set(langsysesFirst)
     langsyses = langsysesFirst + sorted(list(langsyses))
-    langsysLines = ['languagesystem {} {};'.format(l[0], l[1]) for l in langsyses]
-    feaText= '\n'.join(langsysLines + feaLines)
+    langsysLines = [f"languagesystem {l[0]} {l[1]};" for l in langsyses]
+    feaText = "\n".join(langsysLines + feaLines)
     return feaText
 
-if __name__ == '__main__':
-    #print(isoScript('dev2'))
-    #print(otScript('DFLT'))
-    #print(otScript('Zzzz'))
-    #print(otScript('Zyyy'))
-    #print(otScript('Zinh'))
-    #print(otScript('Latn'))
-    #print(otScript('dev2'))
-    #print(otScript('Grek'))
-    #print(otScript('deva'))
-    #print(charScript('আ'))
-    #print(ud.script('আ'))
+
+if __name__ == "__main__":
+    # print(isoScript('dev2'))
+    # print(otScript('DFLT'))
+    # print(otScript('Zzzz'))
+    # print(otScript('Zyyy'))
+    # print(otScript('Zinh'))
+    # print(otScript('Latn'))
+    # print(otScript('dev2'))
+    # print(otScript('Grek'))
+    # print(otScript('deva'))
+    # print(charScript('আ'))
+    # print(ud.script('আ'))
     print(getIsoToOtScriptMap())
 
     fea = """

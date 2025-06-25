@@ -1,6 +1,5 @@
-class MarkFeatureWriter(object):
-    """Skips generating the mark and mkmk features.
-    """
+class MarkFeatureWriter:
+    """Skips generating the mark and mkmk features."""
 
     def __init__(self, font, anchorList=(), mkmkAnchorList=(), ligaAnchorList=()):
         pass

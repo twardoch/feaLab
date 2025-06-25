@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """hb_render.py
 
-hb_render.HarfBuzzRenderer class 
+hb_render.HarfBuzzRenderer class
 
 wraps the 'hb-view' and 'hb-shape' Harfbuzz utilities
 * https://github.com/behdad/harfbuzz
@@ -34,7 +33,7 @@ except ImportError:
 __version__ = "0.3"
 
 
-class HarfBuzzRenderer(object):
+class HarfBuzzRenderer:
     """Class to call the HarfBuzz `hb-view` or `hb-shape` tools via the `sh` module.
 
     Attributes:
@@ -157,7 +156,7 @@ class HarfBuzzRenderer(object):
 
     """
 
-    def __init__(self, font_file=None, face_index=0, text=u''):
+    def __init__(self, font_file=None, face_index=0, text=""):
         """Initialize the HarfBuzzRenderer() object
 
         Args:
@@ -165,7 +164,7 @@ class HarfBuzzRenderer(object):
             face_index (int, optional): the face index in a TTC file, 0 if non-TTC
             text (unicode, optional): Unicode text string to shape or render
         """
-        self.best_shaper = 'ot'
+        self.best_shaper = "ot"
         self.all_shapers = [self.best_shaper]
         self.os_shaper = self.best_shaper
 
@@ -177,15 +176,15 @@ class HarfBuzzRenderer(object):
 
         self.text = text
 
-        self.direction = 'auto'
-        self.language = 'en'
-        self.script = 'auto'
+        self.direction = "auto"
+        self.language = "en"
+        self.script = "auto"
         self.features = []
 
         self.bot = False  #
         self.eot = False  #
-        self.text_before = u''  #
-        self.text_after = u''  #
+        self.text_before = ""  #
+        self.text_after = ""  #
 
         self.preserve_default_ignorables = False  #
         self.utf8_clusters = False  #
@@ -195,10 +194,19 @@ class HarfBuzzRenderer(object):
         self.use_glyph_indexes = False  # Output glyph indices instead of names
 
         self.annotate = False  # Annotate output toing
-        self.background = '#ffffff'  # Set background color (rrggbb/rrggbbaa default: #FFFFFF)
-        self.foreground = '#000000'  # Set foreground color (rrggbb/rrggbbaa, default: #000000)
+        self.background = (
+            "#ffffff"  # Set background color (rrggbb/rrggbbaa default: #FFFFFF)
+        )
+        self.foreground = (
+            "#000000"  # Set foreground color (rrggbb/rrggbbaa, default: #000000)
+        )
         self.line_space = 0  # Set space between lines in units (default: 0)
-        self.margin = [16, 16, 16, 16]  # Margin around output (one to four numbers , default: 16)
+        self.margin = [
+            16,
+            16,
+            16,
+            16,
+        ]  # Margin around output (one to four numbers , default: 16)
 
     def updateShapers(self):
         """Optional method to call `hb-shape`, get the list of HarfBuzz available
@@ -209,15 +217,18 @@ class HarfBuzzRenderer(object):
             None:
         """
         self.all_shapers = str(hb_shape(list_shapers=True)).splitlines()
-        if sys.platform.startswith('win32'):
-            if 'directwrite' in self.all_shapers and 'uniscribe' not in self.all_shapers:
-                self.os_shaper = 'directwrite'
-            elif 'uniscribe' in self.all_shapers:
-                self.os_shaper = 'uniscribe'
-        elif sys.platform.startswith('darwin'):
-            if 'coretext' in self.all_shapers:
-                self.os_shaper = 'coretext'
-        if 'ot' not in self.all_shapers:
+        if sys.platform.startswith("win32"):
+            if (
+                "directwrite" in self.all_shapers
+                and "uniscribe" not in self.all_shapers
+            ):
+                self.os_shaper = "directwrite"
+            elif "uniscribe" in self.all_shapers:
+                self.os_shaper = "uniscribe"
+        elif sys.platform.startswith("darwin"):
+            if "coretext" in self.all_shapers:
+                self.os_shaper = "coretext"
+        if "ot" not in self.all_shapers:
             self.best_shaper = self.os_shaper
 
     def openFont(self, font_file, face_index=0):
@@ -287,7 +298,7 @@ class HarfBuzzRenderer(object):
         """
         text = text if text else self.text
         self.text = text
-        hb_in = text.encode('utf-8')
+        hb_in = text.encode("utf-8")
         hb_out = self._hb_shape(
             _encoding="UTF-8",
             _in=hb_in,
@@ -298,12 +309,12 @@ class HarfBuzzRenderer(object):
             face_index=self.face_index,
             features=",".join(self.features),
             font_file=self.font_file,
-            font_size='upem' if self.font_size == 0 else self.font_size,
+            font_size="upem" if self.font_size == 0 else self.font_size,
             language=self.language,
             no_glyph_names=self.use_glyph_indexes,
             normalize_glyphs=self.normalize_glyphs,
             num_iterations=self.num_iterations,
-            output_format='json',
+            output_format="json",
             preserve_default_ignorables=self.preserve_default_ignorables,
             script=self.script,
             shapers=",".join(self.use_shapers),
@@ -317,11 +328,11 @@ class HarfBuzzRenderer(object):
         if hb_out.stderr:
             warnings.warn("`hb-view` returned an error: %s" % (hb_out.stderr))
             return None
-        return json.loads(
-            unicode(hb_out.stdout)
-        )
+        return json.loads(unicode(hb_out.stdout))
 
-    def _toImage(self, text=None, output_format='svg', font_size=None, output_file=False):
+    def _toImage(
+        self, text=None, output_format="svg", font_size=None, output_file=False
+    ):
         """Method to call hb_view with the desired ouput format and get back:
 
         Args:
@@ -341,7 +352,7 @@ class HarfBuzzRenderer(object):
         else:
             if font_size == 0:
                 self.font_size = 0
-                font_size = 'upem'
+                font_size = "upem"
             elif font_size:
                 font_size = font_size
                 self.font_size = font_size
@@ -349,7 +360,7 @@ class HarfBuzzRenderer(object):
                 font_size = self.font_size
             text = text if text else self.text
             self.text = text
-            hb_in = unicode(text).encode('utf-8')
+            hb_in = unicode(text).encode("utf-8")
             hb_out = self._hb_view(
                 _encoding="UTF-8",
                 _in=hb_in,
@@ -366,7 +377,9 @@ class HarfBuzzRenderer(object):
                 foreground=self.foreground,
                 language=self.language,
                 line_space=self.line_space,
-                margin=self.margin if type(self.margin) == int else " ".join(str(i) for i in self.margin),
+                margin=self.margin
+                if type(self.margin) == int
+                else " ".join(str(i) for i in self.margin),
                 no_glyph_names=self.use_glyph_indexes,
                 normalize_glyphs=self.normalize_glyphs,
                 num_iterations=self.num_iterations,
@@ -395,7 +408,7 @@ class HarfBuzzRenderer(object):
             else:
                 return hb_out.stdout
 
-    def toSVG(self, text=None, font_size=None, output_file=''):
+    def toSVG(self, text=None, font_size=None, output_file=""):
         """
 
         Args:
@@ -409,13 +422,15 @@ class HarfBuzzRenderer(object):
                 * SVG (UTF-8) content
                 * the output file path (UTF-8) if output_file was provided and the file was created
         """
-        data = self._toImage(text=text, font_size=font_size, output_file=output_file, output_format='svg')
+        data = self._toImage(
+            text=text, font_size=font_size, output_file=output_file, output_format="svg"
+        )
         if data:
             return data
         else:
-            return ''
+            return ""
 
-    def toPNG(self, text=None, font_size=None, output_file=''):
+    def toPNG(self, text=None, font_size=None, output_file=""):
         """
 
         Args:
@@ -429,13 +444,15 @@ class HarfBuzzRenderer(object):
                 * PNG buffer
                 * the output file path (UTF-8) if output_file was provided and the file was created
         """
-        data = self._toImage(text=text, font_size=font_size, output_file=output_file, output_format='png')
+        data = self._toImage(
+            text=text, font_size=font_size, output_file=output_file, output_format="png"
+        )
         if data:
             return data
         else:
-            return ''
+            return ""
 
-    def toPDF(self, text=None, font_size=None, output_file=''):
+    def toPDF(self, text=None, font_size=None, output_file=""):
         """
 
         Args:
@@ -449,27 +466,35 @@ class HarfBuzzRenderer(object):
                 * PDF buffer
                 * the output file path (UTF-8) if output_file was provided and the file was created
         """
-        data = self._toImage(text=text, font_size=font_size, output_file=output_file, output_format='pdf')
+        data = self._toImage(
+            text=text, font_size=font_size, output_file=output_file, output_format="pdf"
+        )
         if data:
             return data
         else:
-            return ''
+            return ""
 
 
 def test():
     hb = HarfBuzzRenderer()
     hb.updateShapers()
     print(hb.all_shapers)
-    hb.openFont('test/EBGaramond12-Regular.otf')
-    text = u'Office staff'
+    hb.openFont("test/EBGaramond12-Regular.otf")
+    text = "Office staff"
     print(hb.toJson(text=text))
     hb.margin = 0
-    hb.features = ['+dlig']
+    hb.features = ["+dlig"]
     size = 72
     print(hb.toSVG(text=text, font_size=size))
-    print(hb.toSVG(text=text, font_size=size, output_file='test/EBGaramond12-Regular.svg'))
-    print(hb.toPNG(text=text, font_size=size, output_file='test/EBGaramond12-Regular.png'))
-    print(hb.toPDF(text=text, font_size=size, output_file='test/EBGaramond12-Regular.pdf'))
+    print(
+        hb.toSVG(text=text, font_size=size, output_file="test/EBGaramond12-Regular.svg")
+    )
+    print(
+        hb.toPNG(text=text, font_size=size, output_file="test/EBGaramond12-Regular.png")
+    )
+    print(
+        hb.toPDF(text=text, font_size=size, output_file="test/EBGaramond12-Regular.pdf")
+    )
     help(hb)
 
 
@@ -477,12 +502,12 @@ def main():
     if len(sys.argv) > 1:
         hb = HarfBuzzRenderer()
         hb.openFont(sys.argv[1])
-        hb.text = unicode(sys.argv[2] if len(sys.argv) > 2 else u'O')
-        hb.font_size = int(sys.argv[3] if len(sys.argv) > 3 else '20')
+        hb.text = unicode(sys.argv[2] if len(sys.argv) > 2 else "O")
+        hb.font_size = int(sys.argv[3] if len(sys.argv) > 3 else "20")
         print(hb.toSVG())
     else:
-        print('hb_render font_file [text] [font_size]')
+        print("hb_render font_file [text] [font_size]")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

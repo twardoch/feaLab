@@ -1,6 +1,5 @@
-class KernFeatureWriter(object):
-    """Skips generating the kern feature.
-    """
+class KernFeatureWriter:
+    """Skips generating the kern feature."""
 
     def __init__(self, font):
         pass
